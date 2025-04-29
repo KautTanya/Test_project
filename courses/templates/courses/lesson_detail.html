@@ -1,29 +1,47 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <title>{{ lesson.title }}</title>
+  <meta charset="UTF-8">
+  <title>{{ lesson.title }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-    <h1>{{ lesson.title }}</h1>
+<body class="bg-light">
 
-    {% if lesson.image %}
-        <img src="{{ lesson.image.url }}" alt="Зображення до уроку" style="max-width: 400px;">
-    {% endif %}
+<div class="container py-5">
 
-    <div>
-        {{ lesson.content|linebreaks }}
+  <h1 class="mb-4">{{ lesson.title }}</h1>
+
+  {% if lesson.image %}
+    <div class="text-center mb-4">
+      <img src="{{ lesson.image.url }}" alt="Зображення до уроку" class="img-fluid rounded" style="max-width: 400px;">
     </div>
+  {% endif %}
 
-    {% if not progress.is_completed %}
-        <form method="post">
-            {% csrf_token %}
-            <button type="submit">Відмітити як виконано</button>
-        </form>
-    {% else %}
-        <p>Урок завершено ✅</p>
-    {% endif %}
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body">
+      {{ lesson.content|linebreaks }}
+    </div>
+  </div>
 
-    <p><a href="{% url 'course_detail' lesson.module.course.id %}">Назад до курсу</a></p>
+  {% if not progress.is_completed %}
+    <form method="post" class="mb-4">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-success">
+        <i class="fa fa-check"></i> Відмітити як виконано
+      </button>
+    </form>
+  {% else %}
+    <div class="alert alert-success d-flex align-items-center" role="alert">
+      <i class="fa fa-check-circle me-2"></i> Урок завершено
+    </div>
+  {% endif %}
+
+  <a href="{% url 'course_detail' lesson.module.course.id %}" class="btn btn-outline-secondary">
+    ← Назад до курсу
+  </a>
+
+</div>
+
 </body>
 </html>

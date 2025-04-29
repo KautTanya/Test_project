@@ -175,21 +175,24 @@ def course_detail(request, course_id):
 
     progress = int((completed_lessons_count / all_lessons_count) * 100) if all_lessons_count else 0
 
-    available_lessons = {}
+    # Створюємо список ID доступних уроків
+    available_lessons_ids = []
     unlocked = True
     for module in modules:
         for lesson in module.lessons.all():
-            available_lessons[lesson.id] = unlocked
+            if unlocked:
+                available_lessons_ids.append(lesson.id)
             if lesson.id not in completed_lessons_ids:
-                unlocked = False  # далі блокуються
-    
+                unlocked = False  # Блокувати всі наступні
+
     return render(request, 'courses/course_detail.html', {
         'course': course,
         'modules': modules,
         'completed_lessons_ids': completed_lessons_ids,
+        'available_lessons_ids': available_lessons_ids,
         'progress': progress,
-        'available_lessons': available_lessons,
     })
+
 
 @login_required
 def lesson_detail(request, lesson_id):
