@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ lesson.title }}</title>
+</head>
+<body>
+    <h1>{{ lesson.title }}</h1>
+
+    {% if lesson.image %}
+        <img src="{{ lesson.image.url }}" alt="Зображення до уроку" style="max-width: 400px;">
+    {% endif %}
+
+    <div>
+        {{ lesson.content|linebreaks }}
+    </div>
+
+    {% if not progress.is_completed %}
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit">Відмітити як виконано</button>
+        </form>
+    {% else %}
+        <p>Урок завершено ✅</p>
+    {% endif %}
+
+    <p><a href="{% url 'course_detail' lesson.module.course.id %}">Назад до курсу</a></p>
+</body>
+</html>

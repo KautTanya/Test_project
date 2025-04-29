@@ -7,7 +7,7 @@ import time
 # Константи
 MERCHANT_ACCOUNT = "127_0_0_142"
 MERCHANT_SECRET_KEY = "0234270dd4d20bec802fcacca64d75040a867c5b"
-NGROK_DOMAIN = "a47f-94-124-166-101.ngrok-free.app"
+NGROK_DOMAIN = "08f9-94-124-166-101.ngrok-free.app"
 
 def generate_signature(merchant_account, order_reference, amount, currency, transaction_status, reason_code):
     sign_parts = [
@@ -43,7 +43,9 @@ def send_callback(order_reference, amount, currency="UAH", transaction_status="A
         "currency": currency,
         "transactionStatus": transaction_status,
         "reasonCode": reason_code,
-        "merchantSignature": signature
+        "merchantSignature": signature,
+        "email": "our.big.idea.2025@gmail.com"
+
     }
 
     url = f"https://{NGROK_DOMAIN}/payment/callback/"

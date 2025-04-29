@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Мій кабінет</title>
+</head>
+<body>
+    <h1>Привіт, {{ request.user.username }}!</h1>
+    <h2>Ваші воркшопи:</h2>
+
+    {% if user_courses %}
+        <ul>
+            {% for user_course in user_courses %}
+            <li>
+                Воркшоп: {{ user_course.course.title }} — <a href="{% url 'course_detail' user_course.course.id %}">Перейти до курсу</a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <li>У вас ще немає доступних курсів.</li>
+    {% endif %}
+
+
+    <p><a href="{% url 'logout' %}">Вийти</a></p>
+</body>
+</html>

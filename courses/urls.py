@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -9,4 +10,14 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('start_payment/', views.start_payment, name='start_payment'),
     path('payment/callback/', views.payment_callback, name='payment_callback'),
+    path('test-email/', views.test_email, name='test_email'),
+    path('password_reset/', auth_views.PasswordResetView.as_view(template_name='courses/password_reset.html'), name='password_reset'),
+    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='courses/password_reset_done.html'), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='courses/password_reset_confirm.html'), name='password_reset_confirm'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='courses/password_reset_complete.html'), name='password_reset_complete'),
+    path('cabinet/', login_required(views.cabinet_view), name='cabinet'),
+    path('course/<int:course_id>/', views.course_detail, name='course_detail'),
+    path('lesson/<int:lesson_id>/', views.lesson_detail, name='lesson_detail'),
+
+
 ]

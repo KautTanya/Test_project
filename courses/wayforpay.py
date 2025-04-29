@@ -45,7 +45,7 @@ def generate_signature(data):
 def create_payment(email, amount=149, currency='UAH'):
     order_reference = str(int(time.time()))
     order_date = int(time.time())
-    domain_name = 'a47f-94-124-166-101.ngrok-free.app'
+    domain_name = '08f9-94-124-166-101.ngrok-free.app'
 
     data = {
         "transactionType": "CREATE_INVOICE",

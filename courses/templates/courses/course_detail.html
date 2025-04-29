@@ -1,0 +1,34 @@
+{% load get_item %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ course.title }}</title>
+</head>
+<body>
+    <h1>{{ course.title }}</h1>
+    <p>Ваш прогрес: {{ progress }}%</p>
+    <div style="width: 100%; background-color: #e0e0e0; height: 20px; border-radius: 10px;">
+        <div style="width: {{ progress }}%; background-color: #4CAF50; height: 100%; border-radius: 10px;"></div>
+    </div>
+
+    {% for module in course.modules.all %}
+        <h2>{{ module.title }}</h2>
+        <ul>
+            {% for lesson in module.lessons.all %}
+                <li>
+                    <a href="{% url 'lesson_detail' lesson.id %}">{{ lesson.title }}</a>
+                    {% if completed_lessons_ids|get_item:lesson.id %}
+                    ✅
+                    {% else %}
+                    ⭕
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+
+    <p><a href="{% url 'cabinet' %}">Назад до кабінету</a></p>
+</body>
+</html>

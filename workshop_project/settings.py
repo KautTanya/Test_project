@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = '/'  # або на сторінку курсу
+LOGOUT_REDIRECT_URL = 'login'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,9 +31,7 @@ SECRET_KEY = 'django-insecure-+c^mog)ndcqe@cj5#yxucx0%-$p$bx0#l(n42xqau9ucw*o)q0
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    'a47f-94-124-166-101.ngrok-free.app'  
+    "*"
 ]
 
 
@@ -59,7 +62,7 @@ ROOT_URLCONF = 'workshop_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -125,3 +128,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_HOST_USER = '9275d0302629b8'
+EMAIL_HOST_PASSWORD = 'b967a9f260c016'
+EMAIL_PORT = 2525
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

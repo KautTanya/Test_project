@@ -11,6 +11,19 @@
   <div class="container">
     <a class="navbar-brand" href="/">Workshop</a>
   </div>
+
+  {% if user.is_authenticated %}
+    <p>Вітаємо, {{ user.username }}!</p>
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" style="background:none;border:none;color:blue;cursor:pointer;">
+            Вийти
+        </button>
+    </form>
+  {% else %}
+      <a href="{% url 'login' %}">Увійти</a>
+  {% endif %}
+
 </nav>
 
 <div class="container">
