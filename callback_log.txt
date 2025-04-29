@@ -1,0 +1,9 @@
+Mon Apr 28 23:37:21 2025 - Status: 200 - Response: OK
+
+--- Запит на Mon Apr 28 23:39:58 2025 ---
+OrderReference: 12345
+Amount: 100.0
+Currency: UAH
+TransactionStatus: Approved
+Відповідь сервера: 200 - OK
+===============================

@@ -1,0 +1,19 @@
+{% extends 'courses/base.html' %}
+
+{% block title %}Головна{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="text-center mb-4">Приєднатися до воркшопу</h2>
+        <form method="post" action="{% url 'start_payment' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <input type="email" class="form-control" name="email" id="email" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Оплатити</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
