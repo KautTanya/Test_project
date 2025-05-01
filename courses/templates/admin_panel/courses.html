@@ -1,0 +1,36 @@
+{% extends 'courses/base.html' %}
+
+{% block content %}
+<div class="container py-5">
+  <h2 class="mb-4">Курси</h2>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Назва</th>
+        <th>Ціна</th>
+        <th>Статус</th>
+        <th>Дії</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for course in courses %}
+      <tr>
+        <td>{{ course.title }}</td>
+        <td>${{ course.price }}</td>
+        <td>
+          {% if course.is_published %}
+            <span class="badge bg-success">Опубліковано</span>
+          {% else %}
+            <span class="badge bg-secondary">Не опубліковано</span>
+          {% endif %}
+        </td>
+        <td>
+          <a href="#" class="btn btn-sm btn-primary disabled">Редагувати</a>
+          <a href="#" class="btn btn-sm btn-danger disabled">Видалити</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

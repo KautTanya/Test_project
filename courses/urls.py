@@ -16,8 +16,8 @@ urlpatterns = [
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='courses/password_reset_confirm.html'), name='password_reset_confirm'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='courses/password_reset_complete.html'), name='password_reset_complete'),
     path('cabinet/', login_required(views.cabinet_view), name='cabinet'),
-    path('course/<int:course_id>/', views.course_detail, name='course_detail'),
+    path('course/<slug:slug>/', views.course_landing, name='course_landing'),
+    path('courses/<int:course_id>/', views.course_detail, name='course_detail'),
     path('lesson/<int:lesson_id>/', views.lesson_detail, name='lesson_detail'),
-
-
+    
 ]

@@ -7,7 +7,7 @@ import time
 # Константи
 MERCHANT_ACCOUNT = "127_0_0_142"
 MERCHANT_SECRET_KEY = "0234270dd4d20bec802fcacca64d75040a867c5b"
-NGROK_DOMAIN = "08f9-94-124-166-101.ngrok-free.app"
+NGROK_DOMAIN = "8c88-94-124-166-101.ngrok-free.app"
 
 def generate_signature(merchant_account, order_reference, amount, currency, transaction_status, reason_code):
     sign_parts = [
@@ -44,7 +44,8 @@ def send_callback(order_reference, amount, currency="UAH", transaction_status="A
         "transactionStatus": transaction_status,
         "reasonCode": reason_code,
         "merchantSignature": signature,
-        "email": "our.big.idea.2025@gmail.com"
+        "email": "our.big.idea.2025@gmail.com",
+        "productName": [course_name]
 
     }
 
@@ -75,6 +76,7 @@ def send_callback(order_reference, amount, currency="UAH", transaction_status="A
 if __name__ == "__main__":
     print("=== Надсилання тестового Callback на WayForPay ===")
     order_reference = input("Введіть orderReference (наприклад TEST_APPROVED_12345): ").strip()
+    course_name = input("Введіть назву курсу (як у базі): ").strip()
     amount = float(input("Введіть суму платежу (наприклад 149): ").strip())
     currency = input("Введіть валюту (UAH або USD, або інша) [за замовчуванням UAH]: ").strip() or "UAH"
     status = input("Введіть статус транзакції (Approved / Declined) [за замовчуванням Approved]: ").strip() or "Approved"

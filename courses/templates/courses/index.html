@@ -1,19 +1,175 @@
-{% extends 'courses/base.html' %}
-
+{% extends "courses/base.html" %}
 {% block title %}Головна{% endblock %}
-
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <h2 class="text-center mb-4">Приєднатися до воркшопу</h2>
-        <form method="post" action="{% url 'start_payment' %}">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label for="email" class="form-label">Email:</label>
-                <input type="email" class="form-control" name="email" id="email" required>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Оплатити</button>
-        </form>
+
+<!-- Hero Section -->
+<section class="bg-primary text-white text-center py-5">
+  <div class="container">
+    <h1 class="display-4">Воркшопи зі здорового харчування</h1>
+    <h3 class="text-center mb-5">Платформа практичних воркшопів для здорового життя</h3>
+    {% comment %} <p class="lead">Платформа практичних воркшопів для здорового життя</p> {% endcomment %}
+    <p class="lead">Доступні онлайн-курси, які допоможуть змінити харчові звички та 
+        покращити самопочуття. Навчайся у зручному темпі та закріплюй зміни щодня.</p>
+    <a href="#courses" class="btn btn-light mt-3">Переглянути курси</a>
+  </div>
+</section>
+
+<!-- Про курс -->
+<section class="py-5">
+  <div class="container">
+    <h2 class="text-center mb-5">Чому обирають нас?</h2>
+    <div class="row g-4">
+      <div class="col-md-4 text-center">
+        <i class="fas fa-apple-alt fa-3x text-primary mb-3"></i>
+        <h5>Практика і знання</h5>
+        <p>Кожен воркшоп — це готовий план дій, а не суха теорія.</p>
+      </div>
+      <div class="col-md-4 text-center">
+        <i class="fas fa-clock fa-3x text-primary mb-3"></i>
+        <h5>Гнучкий графік</h5>
+        <p>Проходьте уроки у зручний для вас час протягом 2 місяців.</p>
+      </div>
+      <div class="col-md-4 text-center">
+        <i class="fas fa-user-check fa-3x text-primary mb-3"></i>
+        <h5>Підтримка тренера</h5>
+        <p>Ви не залишитесь сам на сам — завжди є можливість отримати допомогу.</p>
+      </div>
     </div>
-</div>
+  </div>
+</section>
+
+<!-- Курси -->
+<section id="courses" class="py-5 bg-white">
+  <div class="container">
+    <h2 class="text-center mb-5">Доступні воркшопи</h2>
+    <div class="row g-4">
+      {% for course in courses %}
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">{{ course.title }}</h5>
+              <p class="card-text">{{ course.description|truncatewords:20 }}</p>
+              <div class="mt-auto">
+                <a href="{% url 'course_landing' slug=course.slug %}" class="btn btn-primary w-100">Детальніше</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <p class="text-center">Наразі курси недоступні. Слідкуйте за оновленнями!</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Відгуки -->
+<section class="py-5 bg-light">
+    <h2 class="text-center mt-5 mb-4">Відгуки</h2>
+
+    <div class="swiper mySwiper mb-5">
+    <div class="swiper-wrapper">
+        <div class="swiper-slide">
+        <div class="card p-3">
+            <p>Цей курс повністю змінив мій підхід до харчування! Рекомендую всім!</p>
+            <small class="text-muted">— Марина, 32 роки</small>
+        </div>
+        </div>
+        <div class="swiper-slide">
+        <div class="card p-3">
+            <p>Дуже зручно, що можна проходити у власному темпі. Я в захваті!</p>
+            <small class="text-muted">— Анна, 27 років</small>
+        </div>
+        </div>
+        <div class="swiper-slide">
+            <div class="card p-3">
+                <p>Після проходження курсу я змінила своє ставлення до харчування. Рекомендую всім!</p>
+                <small class="text-muted">— Олена, 28 років</small>
+            </div>
+        </div>
+        <div class="swiper-slide">
+            <div class="card p-3">
+                <p>Дуже зручно та інформативно. Дякую за чудовий курс!</p>
+                <small class="text-muted">— Андрій, 35 років</small>
+            </div>
+        </div>
+        <div class="swiper-slide">
+        <div class="card p-3">
+            <p>Інформація подається просто і доступно. Ідеально для новачків.</p>
+            <small class="text-muted">— Ігор, 40 років</small>
+        </div>
+        </div>
+    </div>
+
+    <!-- Кнопки -->
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
+
+    <!-- Крапки -->
+    <div class="swiper-pagination"></div>
+    </div>
+
+
+</section>
+
+<!-- FAQ -->
+<section class="py-5">
+    <div class="container">
+      <h2 class="text-center mb-5">Часті запитання</h2>
+      <div class="accordion" id="faqAccordion">
+
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="faq1">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
+              Як проходить навчання?
+            </button>
+          </h2>
+          <div id="collapse1" class="accordion-collapse collapse show" aria-labelledby="faq1" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              Після оплати ви отримуєте доступ до особистого кабінету та матеріалів курсу.
+            </div>
+          </div>
+        </div>
+      
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="faq2">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+              Чи є підтримка під час навчання?
+            </button>
+          </h2>
+          <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="faq2" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              Так, ви можете звернутися за допомогою через Telegram або Email.
+            </div>
+          </div>
+        </div>
+      
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="faq3">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+              Чи потрібна спеціальна підготовка для проходження курсів?
+            </button>
+          </h2>
+          <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="faq3" data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              Ні, курси розраховані на широке коло користувачів без спеціальних знань.
+            </div>
+          </div>
+        </div>
+      
+      </div>
+      
+    </div>
+  </section>
+  
+
+<!-- Контакти -->
+<section class="py-5 bg-primary text-white">
+  <div class="container text-center">
+    <h2 class="mb-4">Контакти</h2>
+    <p>Email: <a href="mailto:your@email.com" class="text-white text-decoration-underline">your@email.com</a></p>
+    <p>Telegram: <a href="https://t.me/yourtelegram" target="_blank" class="text-white text-decoration-underline">@yourtelegram</a></p>
+  </div>
+</section>
+  
 {% endblock %}
+

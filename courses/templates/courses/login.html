@@ -1,10 +1,7 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <title>Вхід</title>
-</head>
-<body>
+{% extends "courses/base.html" %}
+{% block title %}авторизація{% endblock %}
+{% block content %}
+
     <h2>Вхід на платформу</h2>
 
     {% if form.errors %}
@@ -22,5 +19,4 @@
         <button type="submit">Увійти</button>
     </form>
 
-</body>
-</html>
+{% endblock %}

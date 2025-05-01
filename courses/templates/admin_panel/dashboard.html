@@ -1,0 +1,30 @@
+{% extends 'courses/base.html' %}
+
+{% block title %}Admin Panel{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <h1 class="mb-4">Admin Panel — Dashboard</h1>
+
+  <div class="row text-center">
+    <div class="col-md-4">
+      <div class="card shadow-sm p-3">
+        <h4>Total Courses</h4>
+        <p class="display-5">{{ total_courses }}</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm p-3">
+        <h4>Active Enrollments</h4>
+        <p class="display-5">{{ active_users }}</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm p-3">
+        <h4>Published Courses</h4>
+        <p class="display-5">{{ published_courses }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

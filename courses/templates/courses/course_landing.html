@@ -1,0 +1,94 @@
+{% extends "courses/base.html" %}
+{% block title %}{{ course.title }} | Курс{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light">
+  <div class="container">
+    <h1 class="mb-4">{{ course.title }}</h1>
+    <p class="lead">{{ course.description }}</p>
+  </div>
+</section>
+
+<section class="py-5">
+  <div class="container">
+    <h2 class="text-center mb-5">Що ви отримаєте:</h2>
+    <div class="row g-4">
+      <div class="col-md-4 text-center">
+        <i class="fas fa-heartbeat fa-2x text-primary mb-3"></i>
+        <h5>Здорові звички</h5>
+        <p>Формування корисних звичок крок за кроком</p>
+      </div>
+      <div class="col-md-4 text-center">
+        <i class="fas fa-utensils fa-2x text-primary mb-3"></i>
+        <h5>Правильне харчування</h5>
+        <p>Готові рішення на кожен день</p>
+      </div>
+      <div class="col-md-4 text-center">
+        <i class="fas fa-calendar-check fa-2x text-primary mb-3"></i>
+        <h5>Гнучкий графік</h5>
+        <p>Доступ до матеріалів протягом 2 місяців</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-5 bg-white">
+  <div class="container">
+    <h2 class="text-center mb-5">Програма курсу</h2>
+    {% for module in course.modules.all %}
+      <div class="mb-3">
+        <h5>{{ module.title }}</h5>
+        <p>{{ module.lessons.count }} уроків</p>
+      </div>
+    {% empty %}
+      <p>Наразі модулі не додані.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="py-5 bg-light">
+  <div class="container text-center">
+    {% if user.is_authenticated and course.id in user_courses %}
+    {% comment %} {% if user.is_authenticated and course.id in user_courses or user.is_superuser %} {% endcomment %}
+    <a href="{% url 'course_detail' course.id %}" class="btn btn-primary">Перейти до курсу</a>
+    {% else %}
+        <h2 class="mb-4">Вартість курсу: {{ course.price }} грн</h2>
+        <form method="post" action="{% url 'start_payment' %}" class="mx-auto" style="max-width: 400px">
+          {% csrf_token %}
+          <div class="mb-3">
+            <input type="hidden" name="course_id" value="{{ course.id }}">
+            <label for="email" class="form-label">Введіть ваш Email:</label>
+            <input type="email" name="email" id="email" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-success w-100">Придбати курс</button>
+        </form>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+
+
+
+
+
+
+{% comment %} {% extends 'courses/base.html' %}
+
+{% block title %}Головна{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="text-center mb-4">Приєднатися до воркшопу</h2>
+        <form method="post" action="{% url 'start_payment' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <input type="email" class="form-control" name="email" id="email" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Оплатити</button>
+        </form>
+    </div>
+</div>
+{% endblock %} {% endcomment %}

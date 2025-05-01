@@ -2,10 +2,9 @@ import hmac, hashlib
 import json
 import requests
 import time
+from decimal import Decimal
 
 # Конфігурація Wayforpay
-# MERCHANT_ACCOUNT = 'test_merch_n1'
-# MERCHANT_SECRET_KEY = 'flk3409refn54t54t*FNJRET'
 MERCHANT_ACCOUNT = '127_0_0_142'
 MERCHANT_SECRET_KEY = '0234270dd4d20bec802fcacca64d75040a867c5b'
 WAYFORPAY_API_URL = 'https://api.wayforpay.com/api'
@@ -34,6 +33,8 @@ def generate_signature(data):
     
     # З'єднуємо все в один рядок
     sign_string = ';'.join(sign_parts)
+
+    print("SIGN STRING USED FOR SIGNATURE:", sign_string)
     
     # Створюємо підпис
     return hmac.new(
@@ -42,10 +43,12 @@ def generate_signature(data):
         hashlib.md5
     ).hexdigest()
 
-def create_payment(email, amount=149, currency='UAH'):
+def create_payment(email, amount=149, course_name="Workshop", currency='UAH'):
     order_reference = str(int(time.time()))
     order_date = int(time.time())
-    domain_name = '08f9-94-124-166-101.ngrok-free.app'
+    domain_name = '8c88-94-124-166-101.ngrok-free.app '
+
+    amount = Decimal(format(amount, '.2f'))
 
     data = {
         "transactionType": "CREATE_INVOICE",
@@ -55,16 +58,18 @@ def create_payment(email, amount=149, currency='UAH'):
         "merchantAuthType": "SimpleSignature",  
         "orderReference": order_reference,
         "orderDate": order_date,
-        "amount": amount,
+        "amount": str(amount),
         "currency": currency,
-        "productName": ["Workshop"],
+        "productName": [course_name],
         "productCount": [1],
-        "productPrice": [amount],
+        "productPrice": [str(amount), ],
         "clientEmail": email,
         "language": "UA",
 
         "returnUrl": f"https://{domain_name}/",
         "serviceUrl": f"https://{domain_name}/payment/callback/",
+
+        # "amount_str": amount_str,
     }
 
     data['merchantSignature'] = generate_signature(data)
@@ -84,9 +89,8 @@ def create_payment(email, amount=149, currency='UAH'):
     if response.status_code == 200:
         response_data = response.json()
         if response_data.get('reasonCode') == 1100:
-            return response_data['invoiceUrl']
+            return response_data['invoiceUrl'], order_reference
         else:
             raise Exception(f"Wayforpay error: {response_data.get('reasonCode')} - {response_data.get('reason')}")
     else:
         raise Exception(f"HTTP error: {response.status_code}")
-

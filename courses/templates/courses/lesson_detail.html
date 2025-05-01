@@ -1,47 +1,113 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-  <meta charset="UTF-8">
-  <title>{{ lesson.title }}</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-light">
+
+{% extends 'courses/base.html' %}
+
+{% block title %}{{ course.title }}{% endblock %}
+
+{% block content %}
+{% load static %}
+{% load custom_filters %}
 
 <div class="container py-5">
 
-  <h1 class="mb-4">{{ lesson.title }}</h1>
-
-  {% if lesson.image %}
-    <div class="text-center mb-4">
-      <img src="{{ lesson.image.url }}" alt="Зображення до уроку" class="img-fluid rounded" style="max-width: 400px;">
+  <div class="d-flex">
+    <div class="sidebar me-4">
+      <h5>Модулі</h5>
+      {% for module in modules %}
+        <div class="module-title">{{ module.title }}</div>
+        {% for lesson in module.lessons.all %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {% if lesson.id in available_lessons_ids %}
+              <a href="{% url 'lesson_detail' lesson.id %}" class="lesson-link {% if lesson.id == current_lesson_id %}active{% endif %}">
+                {{ lesson.title }}
+              </a>
+            {% else %}
+              <span class="text-muted">
+                <i class="fas fa-lock"></i> {{ lesson.title }}
+              </span>
+            {% endif %}
+          </li>
+        {% endfor %}
+      {% endfor %}
     </div>
-  {% endif %}
 
-  <div class="card mb-4 shadow-sm">
-    <div class="card-body">
-      {{ lesson.content|linebreaks }}
+  <div class="flex-grow-1">
+    <h1 class="mb-4">{{ lesson.title }}</h1>
+
+    {% if lesson.image %}
+      <div class="text-center mb-4">
+        <img src="{{ lesson.image.url }}" alt="Зображення до уроку" class="img-fluid rounded" style="max-width: 400px;">
+      </div>
+    {% endif %}
+
+    <div class="card p-3 mb-4">
+      <div class="card-body">
+        {{ lesson.content|urlize_blank}}
+      </div>
+    </div>
+
+    {% if lesson.youtube_url %}
+      <div class="ratio ratio-16x9 mb-4">
+        <iframe
+          src="https://www.youtube.com/embed/{{ lesson.youtube_url|cut:'https://www.youtube.com/watch?v=' }}"
+          frameborder="0"
+          allowfullscreen
+        ></iframe>
+      </div>
+    {% endif %}
+
+
+    {% if lesson.attachments.all %}
+      <div class="mt-4">
+        <h5>📎 Додаткові матеріали:</h5>
+        <ul class="list-group">
+          {% for attachment in lesson.attachments.all %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              {{ attachment.name }}
+              <a href="{{ attachment.file.url }}" class="btn btn-sm btn-outline-primary" download>
+                Завантажити
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+
+    {% if not progress.is_completed %}
+      <form method="post" class="mb-4">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">
+          <i class="fa fa-check"></i> Відмітити як виконано
+        </button>
+      </form>
+    {% else %}
+      <div class="alert alert-success d-flex align-items-center" role="alert">
+        <i class="fa fa-check-circle me-2"></i> Урок завершено
+      </div>
+    {% endif %}
+
+    <div class="d-flex justify-content-between mt-4">
+      {% if prev_lesson %}
+        <a href="{% url 'lesson_detail' prev_lesson.id %}" class="btn btn-outline-primary">
+          ← Попередній урок
+        </a>
+      {% else %}
+        <span></span>
+      {% endif %}
+    
+      {% if next_lesson %}
+        <a href="{% url 'lesson_detail' next_lesson.id %}" class="btn btn-primary">
+          Наступний урок →
+        </a>
+      {% endif %}
+    </div>
+    
+    <div class="text-center mt-3">
+      <a href="{% url 'course_detail' lesson.module.course.id %}" class="btn btn-outline-secondary">
+        ← Назад до курсу
+      </a>
     </div>
   </div>
-
-  {% if not progress.is_completed %}
-    <form method="post" class="mb-4">
-      {% csrf_token %}
-      <button type="submit" class="btn btn-success">
-        <i class="fa fa-check"></i> Відмітити як виконано
-      </button>
-    </form>
-  {% else %}
-    <div class="alert alert-success d-flex align-items-center" role="alert">
-      <i class="fa fa-check-circle me-2"></i> Урок завершено
-    </div>
-  {% endif %}
-
-  <a href="{% url 'course_detail' lesson.module.course.id %}" class="btn btn-outline-secondary">
-    ← Назад до курсу
-  </a>
-
 </div>
 
-</body>
-</html>
+{% endblock %}
