@@ -1,92 +1,87 @@
-{% extends 'courses/base.html' %}
+{% extends 'admin_panel/admin_base.html' %}
+{% load form_tags %}
 
 {% block content %}
-  <div class="container">
-    <h2 class="mt-4 mb-3">Редагувати модуль</h2>
-    
-    <form method="post">
-      {% csrf_token %}
+<div class="max-w-4xl mx-auto p-6 bg-white shadow rounded">
+  <h2 class="text-2xl font-bold mb-4">Редагувати модуль</h2>
 
-      <div class="mb-3">
-        <label for="id_title">Назва модуля:</label>
-        {{ module_form.title }}
-      </div>
+  <form method="post">
+    {% csrf_token %}
 
-      <hr>
-      <h4>Уроки</h4>
+    <div class="mb-6">
+      <label for="id_title" class="block font-medium text-gray-700 mb-1">Назва модуля:</label>
+      {{ module_form.title|add_class:"w-full border-gray-300 rounded px-3 py-2 shadow-sm" }}
+    </div>
 
-      {{ lesson_formset.management_form }}
+    <hr class="my-6">
+    <h3 class="text-xl font-semibold mb-4">Уроки</h3>
 
-      <div id="formset-container">
-        {% for lesson_form, content_formset in lesson_formsets %}
-          <div class="lesson-form border p-3 mb-3 bg-light">
-            <h5>Урок {{ forloop.counter }}</h5>
+    {{ lesson_formset.management_form }}
+
+    <div id="formset-container" class="space-y-6">
+      {% for lesson_form, content_formset in lesson_formsets %}
+        {% if lesson_form.instance.title or lesson_form.instance.id %}
+          <div class="border border-gray-300 p-4 rounded bg-gray-50">
+            <h5 class="text-lg font-semibold mb-2">Урок {{ forloop.counter }}</h5>
+
             {{ lesson_form.management_form }}
-            {{ lesson_form.title.errors }}
-            {{ lesson_form.title.label_tag }} {{ lesson_form.title }}
-
-            <h6>Контент</h6>
-            <div class="content-formset">
-              {% for block_form in content_formset %}
-                <div class="block-form border p-2 mb-2 bg-white">
-                  {{ block_form.content_type.label_tag }} {{ block_form.content_type }}
-                  {{ block_form.content.label_tag }} {{ block_form.content }}
-                  {{ block_form.DELETE }} <label>Видалити</label>
-                </div>
-              {% endfor %}
+            <div class="mb-3">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Назва уроку:</label>
+              {{ lesson_form.title|add_class:"w-full border-gray-300 rounded px-3 py-2 shadow-sm" }}
             </div>
-            <button type="button" class="btn btn-outline-secondary btn-sm mt-1" onclick="addContentBlock(this)">Додати блок</button>
+
+            <h5 class="text-sm font-medium text-gray-600 mb-2">Контентні блоки</h5>
+            {{ content_formset.management_form }}
+
+            {% if lesson_form.instance.id %}
+              <a href="{% url 'admin_edit_lesson' lesson_form.instance.id %}"
+                class="text-blue-600 hover:underline text-sm mt-2 inline-block">
+                ✏️ Редагувати урок
+              </a>
+
+              <a href="{% url 'admin_delete_lesson' lesson_form.instance.id %}" 
+                class="inline-flex items-center text-sm bg-red-400 text-white px-3 py-1 rounded hover:bg-red-600 ml-2"
+                onclick="return confirm('Ви впевнені, що хочете видалити цей урок?')">
+                🗑️ Видалити урок
+              </a>
+            {% endif %}
           </div>
-        {% endfor %}
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <a href="{% url 'admin_add_lesson' module.id %}" 
+        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow inline-block">
+        ➕ Додати урок
+      </a>
+
+
+      <div class="flex gap-3">
+        <a href="{% url 'admin_edit_course' module.course.id %}" class="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded shadow">
+          Назад
+        </a>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow">
+          💾 Зберегти
+        </button>
       </div>
+    </div>
+  </form>
+</div>
 
-      <!-- Порожня форма (шаблон) для JS -->
-      <div class="block-form empty-form-template border p-2 mb-2 bg-white" style="display: none;">
-        {{ content_formset.empty_form.content_type.label_tag }} {{ content_formset.empty_form.content_type }}
-        {{ content_formset.empty_form.content.label_tag }} {{ content_formset.empty_form.content }}
-        {{ content_formset.empty_form.DELETE }} <label>Видалити</label>
-      </div>
+<script>
+  function addContentBlock(button) {
+    const lessonContainer = button.closest('.lesson-form');
+    const contentContainer = lessonContainer.querySelector('.content-formset');
+    const totalForms = contentContainer.querySelector('input[name$="-TOTAL_FORMS"]');
+    const currentCount = parseInt(totalForms.value);
+    const template = document.querySelector('.empty-form-template').cloneNode(true);
+    template.style.display = 'block';
+    template.classList.remove('empty-form-template');
+    template.innerHTML = template.innerHTML.replace(/__prefix__/g, currentCount);
+    contentContainer.insertBefore(template, button);
+    totalForms.value = currentCount + 1;
+  }
+</script>
 
-
-      <button type="button" class="btn btn-outline-success" onclick="addLessonForm()">Додати урок</button>
-      <button type="submit" class="btn btn-primary mt-2">Зберегти</button>
-      <a href="{% url 'admin_edit_course' module.course.id %}" class="btn btn-secondary">Назад</a>
-    </form>
-  </div>
-
-  <script>
-    function addLessonForm() {
-      const container = document.getElementById('formset-container');
-      const totalFormsInput = document.getElementById('id_{{ lesson_formset.prefix }}-TOTAL_FORMS');
-      const currentFormCount = parseInt(totalFormsInput.value);
-  
-      const emptyFormHtml = document.getElementById('empty-form').innerHTML.replace(/__prefix__/g, currentFormCount);
-  
-      const div = document.createElement('div');
-      div.classList.add('lesson-form', 'border', 'p-3', 'mb-3', 'bg-light');
-      div.innerHTML = emptyFormHtml;
-  
-      container.appendChild(div);
-      totalFormsInput.value = currentFormCount + 1;
-    }
-  </script>
-  <script>
-    function addContentBlock(button) {
-      const lessonContainer = button.closest('.lesson-form');
-      const contentContainer = lessonContainer.querySelector('.content-formset');
-      const totalForms = contentContainer.querySelector('input[name$="-TOTAL_FORMS"]');
-      const currentCount = parseInt(totalForms.value);
-      const emptyForm = contentContainer.querySelector('.empty-form-template').cloneNode(true);
-      emptyForm.style.display = 'block';
-      emptyForm.classList.remove('empty-form-template');
-      emptyForm.innerHTML = emptyForm.innerHTML.replace(/__prefix__/g, currentCount);
-      contentContainer.insertBefore(emptyForm, button);
-      totalForms.value = currentCount + 1;
-    }
-  </script>
-    
-  
-  
-  
 {% endblock %}
-

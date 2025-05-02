@@ -80,7 +80,10 @@
         background-color: #cfe2ff;
         color: #084298;
       }
-      
+      .admin-nav a.active {
+        font-weight: bold;
+        border-bottom: 2px solid #333;
+    }
     </style>
     
 </head>
@@ -94,6 +97,10 @@
   {% if user.is_authenticated %}
     <p>Вітаємо, {{ user.username }}!</p>
     <a href="{% url 'cabinet' %}" class="btn btn-sm btn-outline-primary me-2">Мій кабінет</a>
+    {% if request.user.is_authenticated and request.user.is_staff %}
+        <a href="{% url 'admin_dashboard' %}">Admin Panel</a>
+    {% endif %}
+
     <form method="post" action="{% url 'logout' %}" style="display: inline;">
         {% csrf_token %}
         <button type="submit" style="background:none;border:none;color:blue;cursor:pointer;">

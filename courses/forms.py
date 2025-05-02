@@ -15,7 +15,7 @@ class ModuleForm(forms.ModelForm):
 class LessonForm(forms.ModelForm):
     class Meta:
         model = Lesson
-        fields = ['title']
+        fields = ['title', 'order']
 
 class ContentBlockForm(forms.ModelForm):
     class Meta:

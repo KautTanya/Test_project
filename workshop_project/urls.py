@@ -35,6 +35,9 @@ urlpatterns = [
     path('admin-panel/courses/<int:course_id>/duplicate/',views.admin_duplicate_course, name='admin_duplicate_course'),
     path('admin-panel/courses/add/', views.admin_add_course, name='admin_add_course'),
     path('admin-panel/lessons/<int:lesson_id>/edit/', views.admin_edit_lesson, name='admin_edit_lesson'),
+    path('admin-panel/lessons/<int:lesson_id>/delete/', views.admin_delete_lesson, name='admin_delete_lesson'),
+    path('admin-panel/modules/<int:module_id>/lessons/add/', views.admin_add_lesson, name='admin_add_lesson'),
+
 
 
 ]

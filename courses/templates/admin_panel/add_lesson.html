@@ -1,0 +1,108 @@
+{% extends 'admin_panel/admin_base.html' %}
+{% load form_tags %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
+  <h2 class="text-2xl font-bold mb-6">
+    {% if lesson.id %}Редагувати урок: {{ lesson.title }}{% else %}Створити урок{% endif %}
+  </h2>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700 mb-1">Назва уроку:</label>
+      {{ lesson_form.title|add_class:"w-full border-gray-300 rounded px-3 py-2 shadow-sm" }}
+    </div>
+
+    <div id="formset-container" data-prefix="{{ block_formset.prefix }}">
+      {% for hidden in block_formset.management_form.hidden_fields %}
+        {{ hidden }}
+      {% endfor %}
+
+      {% for form in block_formset %}
+      <div class="border p-4 rounded mb-4 bg-gray-50 content-block-form">
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-700">Тип контенту:</label>
+          {{ form.content_type|add_class:"w-full border-gray-300 rounded px-3 py-2" }}
+        </div>
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-700">Контент:</label>
+          {{ form.content|add_class:"w-full border-gray-300 rounded px-3 py-2" }}
+        </div>
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-700">Порядок:</label>
+          {{ form.order|add_class:"w-20 border-gray-300 rounded px-3 py-2" }}
+        </div>
+        <div class="flex items-center">
+          {{ form.DELETE }} <label class="ml-2 text-red-600">Видалити</label>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Шаблон для JavaScript -->
+    <div id="empty-form-template" style="display: none;">
+      <div class="border p-4 rounded mb-4 bg-gray-100 content-block-form">
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-700" for="id_form-__prefix__-content_type">Тип контенту:</label>
+          <select name="form-__prefix__-content_type" id="id_form-__prefix__-content_type" class="w-full border-gray-300 rounded px-3 py-2">
+            {% for choice in block_formset.empty_form.fields.content_type.choices %}
+              <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-700" for="id_form-__prefix__-content">Контент:</label>
+          <textarea name="form-__prefix__-content" rows="3" class="w-full border-gray-300 rounded px-3 py-2" id="id_form-__prefix__-content"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-700" for="id_form-__prefix__-order">Порядок:</label>
+          <input type="number" name="form-__prefix__-order" value="0" class="w-20 border-gray-300 rounded px-3 py-2" id="id_form-__prefix__-order">
+        </div>
+        <div class="flex items-center">
+          <input type="checkbox" name="form-__prefix__-DELETE" id="id_form-__prefix__-DELETE">
+          <label class="ml-2 text-red-600" for="id_form-__prefix__-DELETE">Видалити</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center mt-6">
+      <button type="button" onclick="addBlockForm()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+        ➕ Додати блок
+      </button>
+
+      <div class="flex gap-3">
+        <a href="{% url 'admin_edit_module' module.id %}" class="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded">
+          Назад до модуля
+        </a>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
+          📄 Зберегти блоки
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+function addBlockForm() {
+  const container = document.getElementById('formset-container');
+  const prefix = container.dataset.prefix;
+  const totalFormsInput = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
+  const currentCount = parseInt(totalFormsInput.value);
+
+  const templateHtml = document.getElementById('empty-form-template').innerHTML;
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = templateHtml;
+
+  tempDiv.querySelectorAll('[name], [id], label[for]').forEach(el => {
+    if (el.name) el.name = el.name.replace(/__prefix__/g, currentCount);
+    if (el.id) el.id = el.id.replace(/__prefix__/g, currentCount);
+    if (el.htmlFor) el.htmlFor = el.htmlFor.replace(/__prefix__/g, currentCount);
+  });
+
+  container.appendChild(tempDiv);
+  totalFormsInput.value = currentCount + 1;
+}
+</script>
+{% endblock %}

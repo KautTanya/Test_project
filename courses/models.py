@@ -34,19 +34,31 @@ class Course(models.Model):
 class Module(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='modules')
     title = models.CharField(max_length=255)
-    order = models.PositiveIntegerField()
+    order = models.PositiveIntegerField(null=True, blank=True, default=0)
 
+
+    def save(self, *args, **kwargs):
+        if self.order is None:
+            last = Module.objects.filter(course=self.course).count()
+            self.order = last + 1
+        super().save(*args, **kwargs)
+        
     def __str__(self):
         return f"{self.course.title} - {self.title}"
 
 class Lesson(models.Model):
     module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name='lessons')
     title = models.CharField(max_length=255)
-    # content = models.TextField()
     content = RichTextUploadingField()
     youtube_url = models.URLField(blank=True, null=True, help_text="Вставте посилання на відео з YouTube")
     image = models.ImageField(upload_to='lesson_images/', blank=True, null=True)  # додамо можливість вставляти фото
     order = models.PositiveIntegerField()
+
+    def save(self, *args, **kwargs):
+        if self.order is None:
+            last = Lesson.objects.filter(module=self.module).count()
+            self.order = last + 1
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.module.title} - {self.title}"

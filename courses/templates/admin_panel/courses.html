@@ -1,43 +1,53 @@
-{% extends 'courses/base.html' %}
+{% extends 'admin_panel/admin_base.html' %}
+
+{% block title %}Courses — Admin Panel{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-  <h2 class="mb-4">Курси</h2>
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-        <th>Назва</th>
-        <th>Ціна</th>
-        <th>Статус</th>
-        <th>Дії</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for course in courses %}
-      <tr>
-        <td>{{ course.title }}</td>
-        <td>${{ course.price }}</td>
-        <td>
-          {% if course.is_published %}
-            <span class="badge bg-success">Опубліковано</span>
-          {% else %}
-            <span class="badge bg-secondary">Не опубліковано</span>
-          {% endif %}
-        </td>
-        <td>
-          <a href="{% url 'admin_edit_course' course.id %}" 
-          class="btn btn-sm btn-primary">Редагувати</a>
-          <a href="{% url 'admin_duplicate_course' course.id %}" class="btn btn-sm btn-warning">
-            Клонувати
+<h1 class="text-2xl font-semibold mb-6">Courses</h1>
+
+<!-- Add Course Button -->
+<div class="mb-6 text-right">
+    <a href="{% url 'admin_add_course' %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        + Add Course
+    </a>
+</div>
+
+<!-- Course Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for course in courses %}
+    <div class="bg-white p-6 rounded-lg shadow flex flex-col justify-between">
+        <div>
+            <h2 class="text-xl font-bold mb-2">{{ course.title }}</h2>
+            <p class="text-gray-600 mb-1">Modules: {{ course.modules.count }}</p>
+            <p class="text-gray-600 text-sm mb-1">Price: ${{ course.price }}</p>
+            <p class="text-sm {% if course.is_published %}text-green-600{% else %}text-red-600{% endif %}">
+                {% if course.is_published %}Published{% else %}Not Published{% endif %}
+            </p>
+        </div>
+        <div class="mt-4 flex space-x-2">
+          <a href="{% url 'admin_duplicate_course' course.id %}" class="p-2 bg-gray-200 rounded hover:bg-gray-300" title="View">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16h8a2 2 0 002-2V8m-2 8H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2"/>
+          </svg>
+        </a>
+            <a href="{% url 'admin_edit_course' course.id %}" class="p-2 bg-yellow-200 rounded hover:bg-yellow-300" title="Edit">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5h2m-1 0v14m9-7H4"/>
+            </svg>
           </a>
-          <a href="{% url 'admin_delete_course' course.id %}"  
-          class="btn btn-sm btn-danger"
-          onclick="return confirm('Ви впевнені, що хочете видалити курс?');">
-          Видалити</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+          <form action="{% url 'admin_delete_course' course.id %}" method="post" onsubmit="return confirm('Ви дійсно хочете видалити курс «{{ course.title }}»?');">
+            {% csrf_token %}
+            <button type="submit" class="p-2 bg-red-500 rounded hover:bg-red-600" title="Видалити">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </form>
+        
+        </div>
+    </div>
+    {% empty %}
+    <p>No courses available.</p>
+    {% endfor %}
 </div>
 {% endblock %}

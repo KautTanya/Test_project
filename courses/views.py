@@ -29,6 +29,10 @@ def index(request):
     return render(request, 'courses/index.html')
 
 
+def staff_check(user):
+    return user.is_staff
+
+
 def start_payment(request):
     """
     Отримує email через POST, створює платіж у WayForPay і
@@ -378,18 +382,63 @@ def admin_edit_module(request, module_id):
 
 
 @staff_member_required
+# def admin_edit_lesson(request, lesson_id):
+#     lesson = get_object_or_404(Lesson, id=lesson_id)
+
+#     ContentFormSet = inlineformset_factory(
+#         Lesson, ContentBlock, form=ContentBlockForm, extra=0, can_delete=True
+#     )
+
+#     if request.method == 'POST':
+#         lesson_form = LessonForm(request.POST, instance=lesson)
+#         block_formset = ContentFormSet(request.POST, instance=lesson, prefix='form')
+
+#         if lesson_form.is_valid() and block_formset.is_valid():
+#             lesson = lesson_form.save()
+#             block_formset.save()
+#             return redirect('admin_edit_module', module_id=lesson.module.id)
+#     else:
+#         lesson_form = LessonForm(instance=lesson)
+#         block_formset = ContentFormSet(instance=lesson, prefix='form')
+
+#     return render(request, 'admin_panel/edit_lesson.html', {
+#         'lesson': lesson,
+#         'lesson_form': lesson_form,
+#         'block_formset': block_formset,
+#         'module': lesson.module,
+#     })
+@staff_member_required
 def admin_edit_lesson(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id)
-    block_formset = ContentBlockFormSet(request.POST or None, instance=lesson)
+    module = lesson.module
 
     if request.method == 'POST':
-        if block_formset.is_valid():
+        lesson_form = LessonForm(request.POST, request.FILES, instance=lesson)
+        block_formset = ContentBlockFormSet(request.POST, instance=lesson)
+
+        if lesson_form.is_valid() and block_formset.is_valid():
+            lesson = lesson_form.save(commit=False)
+
+            # Автоматичне встановлення порядку, якщо не вказано
+            if lesson.order is None:
+                last_order = Lesson.objects.filter(module=lesson.module).count()
+                lesson.order = last_order + 1
+
+            lesson.save()
             block_formset.save()
-            return redirect('admin_edit_module', module_id=lesson.module.id)
+            return redirect('admin_edit_module', module_id=module.id)
+    else:
+        lesson_form = LessonForm(instance=lesson)
+        block_formset = ContentBlockFormSet(instance=lesson)
+
+    print("formset errors:", block_formset.errors)
+    print("non_form_errors:", block_formset.non_form_errors())
 
     return render(request, 'admin_panel/edit_lesson.html', {
-        'lesson': lesson,
+        'lesson_form': lesson_form,
         'block_formset': block_formset,
+        'lesson': lesson,
+        'module': module,
     })
 
 @staff_member_required
@@ -445,6 +494,12 @@ def admin_delete_module(request, module_id):
     module.delete()
     return redirect('admin_edit_course', course_id=course_id)
 
+@staff_member_required
+def admin_delete_lesson(request, lesson_id):
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+    module_id = lesson.module.id
+    lesson.delete()
+    return redirect('admin_edit_module', module_id=module_id)
 
 @staff_member_required
 def admin_add_course(request):
@@ -498,3 +553,43 @@ def admin_add_module(request, course_id):
             return redirect('admin_edit_course', course_id=course.id)
 
     return render(request, 'admin_panel/add_module.html', {'course': course})
+
+from django.forms import inlineformset_factory
+
+@staff_member_required
+def admin_add_lesson(request, module_id):
+    module = get_object_or_404(Module, id=module_id)
+    lesson = Lesson(module=module)  # ще не збережений
+
+    ContentFormSet = inlineformset_factory(
+        Lesson, ContentBlock, form=ContentBlockForm,
+        extra=0, can_delete=True
+    )
+
+    if request.method == 'POST':
+        lesson_form = LessonForm(request.POST)
+        block_formset = ContentFormSet(request.POST, instance=lesson, prefix='form')
+
+        if lesson_form.is_valid() and block_formset.is_valid():
+            lesson = lesson_form.save(commit=False)
+            lesson.module = module
+
+            if lesson.order is None:
+                last_order = Lesson.objects.filter(module=module).count()
+                lesson.order = last_order + 1
+
+            lesson.save()
+            block_formset.instance = lesson  # потрібна прив’язка
+            block_formset.save()
+
+            return redirect('admin_edit_module', module_id=module.id)
+    else:
+        lesson_form = LessonForm()
+        block_formset = ContentFormSet(instance=lesson, prefix='form')
+
+    return render(request, 'admin_panel/add_lesson.html', {
+        'module': module,
+        'lesson_form': lesson_form,
+        'block_formset': block_formset,
+        'lesson': lesson,
+    })

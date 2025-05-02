@@ -1,47 +1,58 @@
-{% extends 'courses/base.html' %}
+{% extends 'admin_panel/admin_base.html' %}
 
 {% block content %}
-  <div class="container">
-    <h2 class="mt-4 mb-3">Редагувати курс</h2>
-    <form method="post">
-      {% csrf_token %}
-      
-      <div class="mb-3">
-        <label>Назва курсу:</label>
-        <input type="text" name="title" value="{{ course.title }}" class="form-control">
-      </div>
+<div class="max-w-3xl mx-auto bg-white shadow rounded-lg p-6">
+  <h1 class="text-2xl font-bold mb-6">Редагувати курс</h1>
+  <form method="post" class="space-y-6">
+    {% csrf_token %}
 
-      <div class="mb-3">
-        <label>Ціна ($):</label>
-        <input type="number" name="price" value="{{ course.price }}" class="form-control">
-      </div>
+    <!-- Назва курсу -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Назва курсу</label>
+      <input type="text" name="title" value="{{ course.title }}" class="w-full border-gray-300 rounded px-3 py-2 shadow-sm">
+    </div>
 
-      <div class="form-check mb-3">
-        <input class="form-check-input" type="checkbox" name="is_published" id="is_published" {% if course.is_published %}checked{% endif %}>
-        <label class="form-check-label" for="is_published">Опублікувати курс</label>
-      </div>
+    <!-- Ціна -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Ціна ($)</label>
+      <input type="number" name="price" value="{{ course.price }}" class="w-full border-gray-300 rounded px-3 py-2 shadow-sm">
+    </div>
 
-      <hr>
-      <h4>Модулі</h4>
+    <!-- Опублікувати -->
+    <div class="flex items-center">
+      <input type="checkbox" name="is_published" id="is_published" class="h-4 w-4 text-blue-600 border-gray-300 rounded" {% if course.is_published %}checked{% endif %}>
+      <label for="is_published" class="ml-2 block text-sm text-gray-700">Опублікувати курс</label>
+    </div>
+
+    <!-- Модулі -->
+    <div>
+      <h2 class="text-lg font-semibold text-gray-800 mb-4 border-t pt-4">Модулі</h2>
+
       {% for module in course.modules.all %}
-        <div class="mb-3 p-3 border rounded bg-light">
-          <strong>Модуль {{ forloop.counter }}:</strong> {{ module.title }}
-          <a href="{% url 'admin_edit_module' module.id %}" class="btn btn-sm btn-primary ms-2">Редагувати</a>
-          <a href="{% url 'admin_delete_module' module.id %}"
-          class="btn btn-danger"
-          onclick="return confirm('Ви впевнені, що хочете видалити модуль?')">Видалити</a>
+        <div class="bg-gray-50 border rounded p-4 mb-3 flex items-center justify-between">
+          <div class="font-medium text-sm text-gray-800">
+            <span class="font-bold">Модуль {{ forloop.counter }}:</span> {{ module.title }}
+          </div>
+          <div class="flex gap-2">
+            <a href="{% url 'admin_edit_module' module.id %}" class="bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 rounded">Редагувати</a>
+            <a href="{% url 'admin_delete_module' module.id %}" class="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded"
+              onclick="return confirm('Ви впевнені, що хочете видалити модуль?')">Видалити</a>
+          </div>
         </div>
       {% empty %}
-        <p>Модулі не додані.</p>
-    
+        <p class="text-sm text-gray-500">Модулі ще не додані.</p>
       {% endfor %}
 
-      <a href="{% url 'admin_add_module' course.id %}" class="btn btn-success mt-2">Додати модуль</a>
+      <a href="{% url 'admin_add_module' course.id %}" class="mt-2 inline-block bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded">
+        ➕ Додати модуль
+      </a>
+    </div>
 
-      <hr>
-      <button type="submit" class="btn btn-primary">Зберегти</button>
-      <a href="{% url 'admin_courses' %}" class="btn btn-secondary ms-2">Скасувати</a>
-    </form>
-  </div>
+    <!-- Кнопки -->
+    <div class="flex justify-end gap-2 pt-4 border-t">
+      <a href="{% url 'admin_courses' %}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded text-sm">Скасувати</a>
+      <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded text-sm">💾 Зберегти</button>
+    </div>
+  </form>
+</div>
 {% endblock %}
-
