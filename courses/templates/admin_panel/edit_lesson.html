@@ -1,0 +1,64 @@
+{% extends 'courses/base.html' %}
+
+{% block content %}
+<div class="container">
+  <h2 class="mt-4">Редагувати урок: {{ lesson.title }}</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ block_formset.management_form }}
+
+    <div id="formset-container">
+      {% for form in block_formset %}
+        <div class="border p-3 mb-3 bg-light rounded content-block-form">
+          <div class="mb-2">
+            <label>Тип контенту</label>
+            {{ form.content_type }}
+          </div>
+          <div class="mb-2">
+            <label>Контент</label>
+            {{ form.content }}
+          </div>
+          <div class="mb-2">
+            <label>Порядок</label>
+            {{ form.order }}
+          </div>
+          <div class="form-check">
+            {{ form.DELETE }} <label class="form-check-label">Видалити</label>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <button type="button" class="btn btn-outline-success" onclick="addBlockForm()">Додати блок</button>
+    <button type="submit" class="btn btn-primary mt-2">Зберегти блоки</button>
+    <a href="{% url 'admin_edit_module' lesson.module.id %}" class="btn btn-secondary">Назад до модуля</a>
+  </form>
+</div>
+
+<script>
+  function addBlockForm() {
+    const container = document.getElementById('formset-container');
+    const totalFormsInput = document.getElementById('id_form-TOTAL_FORMS');
+    const currentCount = parseInt(totalFormsInput.value);
+
+    // Клон першого блоку як шаблон
+    const firstBlock = container.querySelector('.content-block-form');
+    const newBlock = firstBlock.cloneNode(true);
+
+    // Очистити поля
+    newBlock.querySelectorAll('input, textarea, select').forEach(el => {
+      if (el.type === 'checkbox') {
+        el.checked = false;
+      } else {
+        el.value = '';
+      }
+      if (el.name) el.name = el.name.replace(/form-\d+/, `form-${currentCount}`);
+      if (el.id) el.id = el.id.replace(/form-\d+/, `form-${currentCount}`);
+    });
+
+    container.appendChild(newBlock);
+    totalFormsInput.value = currentCount + 1;
+  }
+</script>
+{% endblock %}

@@ -25,8 +25,15 @@
           {% endif %}
         </td>
         <td>
-          <a href="#" class="btn btn-sm btn-primary disabled">Редагувати</a>
-          <a href="#" class="btn btn-sm btn-danger disabled">Видалити</a>
+          <a href="{% url 'admin_edit_course' course.id %}" 
+          class="btn btn-sm btn-primary">Редагувати</a>
+          <a href="{% url 'admin_duplicate_course' course.id %}" class="btn btn-sm btn-warning">
+            Клонувати
+          </a>
+          <a href="{% url 'admin_delete_course' course.id %}"  
+          class="btn btn-sm btn-danger"
+          onclick="return confirm('Ви впевнені, що хочете видалити курс?');">
+          Видалити</a>
         </td>
       </tr>
       {% endfor %}

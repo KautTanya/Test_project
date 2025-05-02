@@ -1,0 +1,47 @@
+{% extends 'courses/base.html' %}
+
+{% block content %}
+  <div class="container">
+    <h2 class="mt-4 mb-3">Редагувати курс</h2>
+    <form method="post">
+      {% csrf_token %}
+      
+      <div class="mb-3">
+        <label>Назва курсу:</label>
+        <input type="text" name="title" value="{{ course.title }}" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label>Ціна ($):</label>
+        <input type="number" name="price" value="{{ course.price }}" class="form-control">
+      </div>
+
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" name="is_published" id="is_published" {% if course.is_published %}checked{% endif %}>
+        <label class="form-check-label" for="is_published">Опублікувати курс</label>
+      </div>
+
+      <hr>
+      <h4>Модулі</h4>
+      {% for module in course.modules.all %}
+        <div class="mb-3 p-3 border rounded bg-light">
+          <strong>Модуль {{ forloop.counter }}:</strong> {{ module.title }}
+          <a href="{% url 'admin_edit_module' module.id %}" class="btn btn-sm btn-primary ms-2">Редагувати</a>
+          <a href="{% url 'admin_delete_module' module.id %}"
+          class="btn btn-danger"
+          onclick="return confirm('Ви впевнені, що хочете видалити модуль?')">Видалити</a>
+        </div>
+      {% empty %}
+        <p>Модулі не додані.</p>
+    
+      {% endfor %}
+
+      <a href="{% url 'admin_add_module' course.id %}" class="btn btn-success mt-2">Додати модуль</a>
+
+      <hr>
+      <button type="submit" class="btn btn-primary">Зберегти</button>
+      <a href="{% url 'admin_courses' %}" class="btn btn-secondary ms-2">Скасувати</a>
+    </form>
+  </div>
+{% endblock %}
+

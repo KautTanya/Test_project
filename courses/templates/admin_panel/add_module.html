@@ -1,0 +1,20 @@
+{% extends 'courses/base.html' %}
+
+{% block content %}
+  <div class="container">
+    <h2 class="mt-4 mb-3">Додати модуль до курсу: {{ course.title }}</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label>Назва модуля:</label>
+        <input type="text" name="title" class="form-control" required>
+      </div>
+      {% comment %} <div class="mb-3">
+        <label>Опис модуля:</label>
+        <textarea name="description" class="form-control"></textarea>
+      </div> {% endcomment %}
+      <button type="submit" class="btn btn-success">Зберегти модуль</button>
+      <a href="{% url 'admin_edit_course' course.id %}" class="btn btn-secondary ms-2">Скасувати</a>
+    </form>
+  </div>
+{% endblock %}

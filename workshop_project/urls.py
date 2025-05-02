@@ -27,7 +27,15 @@ urlpatterns = [
     path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path('admin-panel/courses/', views.admin_courses, name='admin_courses'),
+    path('admin-panel/modules/<int:module_id>/edit/', views.admin_edit_module, name='admin_edit_module'),
+    path('admin-panel/modules/<int:module_id>/delete/', views.admin_delete_module, name='admin_delete_module'),
     path('admin-panel/courses/<int:course_id>/edit/', views.admin_edit_course, name='admin_edit_course'),
+    path('admin-panel/courses/<int:course_id>/delete/', views.admin_delete_course, name='admin_delete_course'),
+    path('admin-panel/courses/<int:course_id>/add-module/', views.admin_add_module, name='admin_add_module'),
+    path('admin-panel/courses/<int:course_id>/duplicate/',views.admin_duplicate_course, name='admin_duplicate_course'),
+    path('admin-panel/courses/add/', views.admin_add_course, name='admin_add_course'),
+    path('admin-panel/lessons/<int:lesson_id>/edit/', views.admin_edit_lesson, name='admin_edit_lesson'),
+
 
 ]
 

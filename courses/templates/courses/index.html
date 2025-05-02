@@ -50,7 +50,12 @@
               <h5 class="card-title">{{ course.title }}</h5>
               <p class="card-text">{{ course.description|truncatewords:20 }}</p>
               <div class="mt-auto">
-                <a href="{% url 'course_landing' slug=course.slug %}" class="btn btn-primary w-100">Детальніше</a>
+                {% if course.slug %}
+                  <a href="{% url 'course_landing' slug=course.slug %}" class="btn btn-primary w-100">Детальніше</a>
+                {% else %}
+                  <span class="btn btn-secondary w-100 disabled">Немає посилання</span>
+                {% endif %}
+
               </div>
             </div>
           </div>

@@ -14,9 +14,13 @@ from django.contrib.auth import login
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.utils import timezone
+from django.utils.text import slugify
 from django.db.models import Prefetch
+from django.forms import modelformset_factory
+from django.forms import inlineformset_factory
 from .wayforpay     import create_payment, MERCHANT_SECRET_KEY
-from .models        import Payment, UserCourse, Course, Lesson, LessonProgress
+from .models        import Payment, UserCourse, Course, Module, Lesson, LessonProgress
+from .forms import CourseForm, ModuleFormSet, LessonFormSet, ModuleForm, LessonForm, ContentBlockFormSet, ContentBlock, ContentBlockForm
 
 def index(request):
     """
@@ -325,3 +329,172 @@ def admin_edit_course(request, course_id):
         return redirect('admin_courses')
 
     return render(request, 'admin_panel/edit_course.html', {'course': course})
+
+@staff_member_required
+def admin_edit_module(request, module_id):
+    module = get_object_or_404(Module, id=module_id)
+    LessonFormSet = inlineformset_factory(Module, Lesson, form=LessonForm, extra=1, can_delete=True)
+
+    if request.method == 'POST':
+        module_form = ModuleForm(request.POST, instance=module)
+        lesson_formset = LessonFormSet(request.POST, instance=module)
+
+        if module_form.is_valid() and lesson_formset.is_valid():
+            module_form.save()
+            lessons = lesson_formset.save(commit=False)
+
+            for lesson in lessons:
+                lesson.module = module
+                lesson.save()
+
+            # Збереження контенту для кожного уроку
+            for form in lesson_formset.forms:
+                lesson = form.instance
+                prefix = f'block-{lesson.id if lesson.id else "__new__"}'
+                ContentFormSet = inlineformset_factory(Lesson, ContentBlock, form=ContentBlockForm, extra=1, can_delete=True)
+                content_formset = ContentFormSet(request.POST, request.FILES, instance=lesson, prefix=prefix)
+                if content_formset.is_valid():
+                    content_formset.save()
+
+            return redirect('admin_edit_course', course_id=module.course.id)
+    else:
+        module_form = ModuleForm(instance=module)
+        lesson_formset = LessonFormSet(instance=module)
+
+    # Для GET-запиту — підготовка formsets для кожного уроку
+    lesson_formsets = []
+    for form in lesson_formset.forms:
+        lesson = form.instance
+        ContentFormSet = inlineformset_factory(Lesson, ContentBlock, form=ContentBlockForm, extra=1, can_delete=True)
+        prefix = f'block-{lesson.id if lesson.id else "__new__"}'
+        content_formset = ContentFormSet(instance=lesson, prefix=prefix)
+        lesson_formsets.append((form, content_formset))
+
+    return render(request, 'admin_panel/edit_module.html', {
+        'module_form': module_form,
+        'lesson_formsets': lesson_formsets,
+        'module': module,
+    })
+
+
+@staff_member_required
+def admin_edit_lesson(request, lesson_id):
+    lesson = get_object_or_404(Lesson, id=lesson_id)
+    block_formset = ContentBlockFormSet(request.POST or None, instance=lesson)
+
+    if request.method == 'POST':
+        if block_formset.is_valid():
+            block_formset.save()
+            return redirect('admin_edit_module', module_id=lesson.module.id)
+
+    return render(request, 'admin_panel/edit_lesson.html', {
+        'lesson': lesson,
+        'block_formset': block_formset,
+    })
+
+@staff_member_required
+def admin_delete_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    course.delete()
+    return redirect('admin_courses')
+
+@staff_member_required
+def admin_duplicate_course(request, course_id):
+    original = get_object_or_404(Course, id=course_id)
+
+    new_title = f"{original.title} (копія)"
+    new_slug = slugify(new_title)
+
+    # Гарантуємо унікальність slug
+    base_slug = new_slug
+    counter = 1
+    while Course.objects.filter(slug=new_slug).exists():
+        new_slug = f"{base_slug}-{counter}"
+        counter += 1
+
+    new_course = Course(
+        title=new_title,
+        price=original.price,
+        is_published=False,
+        description=original.description
+    )
+    new_course.save()
+
+    for module in original.modules.all():
+        new_module = Module.objects.create(
+            title=module.title,
+            order=module.order,
+            course=new_course
+        )
+
+        for lesson in module.lessons.all():
+            Lesson.objects.create(
+                title=lesson.title,
+                content=lesson.content,
+                order=lesson.order,
+                module=new_module
+            )
+
+
+    return redirect('admin_courses')
+
+@staff_member_required
+def admin_delete_module(request, module_id):
+    module = get_object_or_404(Module, id=module_id)
+    course_id = module.course.id
+    module.delete()
+    return redirect('admin_edit_course', course_id=course_id)
+
+
+@staff_member_required
+def admin_add_course(request):
+    if request.method == 'POST':
+        course_form = CourseForm(request.POST)
+        module_formset = ModuleFormSet(request.POST, prefix='modules')
+
+        if course_form.is_valid() and module_formset.is_valid():
+            course = course_form.save()
+            module_formset.instance = course
+            modules = module_formset.save(commit=False)
+
+            for module in modules:
+                module.course = course
+                module.save()
+
+                # Тепер обробляємо formset уроків для кожного модуля
+                lesson_prefix = f'lessons-{module.id}'
+                lesson_formset = LessonFormSet(request.POST or None, instance=module, prefix=lesson_prefix)
+
+                if lesson_formset.is_valid():
+                    lesson_formset.save()
+                else:
+                    print("LessonFormSet errors:", lesson_formset.errors)
+
+            return redirect('admin_courses')
+    else:
+        course_form = CourseForm()
+        module_formset = ModuleFormSet(prefix='modules')
+
+    return render(request, 'admin_panel/add_course.html', {
+        'course_form': course_form,
+        'module_formset': module_formset,
+    })
+
+@staff_member_required
+def admin_add_module(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        # description = request.POST.get('description')
+        last_order = Module.objects.filter(course=course).count()
+
+        if title:
+            Module.objects.create(
+                course=course,
+                title=title,
+                order=last_order + 1
+            )
+            return redirect('admin_edit_course', course_id=course.id)
+
+    return render(request, 'admin_panel/add_module.html', {'course': course})

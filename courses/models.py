@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.text import slugify
 from django.contrib.auth.models import User
 from ckeditor_uploader.fields import RichTextUploadingField
+from uuid import uuid4
 
 
 class Course(models.Model):
@@ -18,13 +19,17 @@ class Course(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             base_slug = slugify(self.title)
+            if not base_slug:
+                base_slug = f"course-{uuid4().hex[:8]}"
             slug = base_slug
             counter = 1
             while Course.objects.filter(slug=slug).exclude(pk=self.pk).exists():
-                slug = f'{base_slug}-{counter}'
+                slug = f"{base_slug}-{counter}"
                 counter += 1
             self.slug = slug
+
         super().save(*args, **kwargs)
+
 
 class Module(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='modules')
@@ -45,6 +50,31 @@ class Lesson(models.Model):
 
     def __str__(self):
         return f"{self.module.title} - {self.title}"
+    
+class ContentBlock(models.Model):
+    TEXT = 'text'
+    IMAGE = 'image'
+    VIDEO = 'video'
+    FILE = 'file'
+    LINK = 'link'
+
+    CONTENT_TYPES = [
+        (TEXT, 'Текст'),
+        (IMAGE, 'Зображення (URL)'),
+        (VIDEO, 'Відео (YouTube URL)'),
+        (FILE, 'Файл (PDF, DOCX, тощо)'),
+        (LINK, 'Посилання'),
+    ]
+
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='blocks')
+    content_type = models.CharField(max_length=20, choices=CONTENT_TYPES)
+    content = models.TextField()
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+
     
 class LessonImage(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='images')
