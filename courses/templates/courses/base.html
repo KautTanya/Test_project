@@ -84,39 +84,90 @@
         font-weight: bold;
         border-bottom: 2px solid #333;
     }
+    .contact-card {
+      max-width: 500px;
+      margin: 50px auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      font-family: sans-serif;
+    }
+  
+    .contact-card h2 {
+      font-size: 22px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+  
+    .contact-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px 18px;
+      margin-bottom: 15px;
+      text-decoration: none;
+      color: #333;
+      transition: background 0.2s, border-color 0.2s;
+    }
+  
+    .contact-btn:hover {
+      background: #eef2ff;
+      border-color: #4f46e5;
+    }
+  
+    .contact-btn span {
+      font-size: 16px;
+    }
+  
+    .contact-icon {
+      margin-right: 12px;
+      font-size: 18px;
+      color: #4f46e5;
+    }
     </style>
     
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-  <div class="container">
-    <a class="navbar-brand" href="/">Workshop</a>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+    <div class="container">
+      <a class="navbar-brand" href="/">Workshop</a>
+  
+      <div class="d-flex align-items-center ms-auto">
+        <a href="{% url 'contact' %}" class="btn btn-outline-secondary me-3">
+          Зв'язатися зі мною
+        </a>
+  
+        {% if user.is_authenticated %}
+          <span class="me-2">Вітаємо, {{ user.username }}!</span>
+          <a href="{% url 'cabinet' %}" class="btn btn-sm btn-outline-primary me-2">Мій кабінет</a>
+          {% if request.user.is_staff %}
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-sm btn-outline-dark me-2">Admin Panel</a>
+          {% endif %}
+  
+          <form method="post" action="{% url 'logout' %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-danger">Вийти</button>
+          </form>
+        {% else %}
+          <a href="{% url 'login' %}" class="btn btn-sm btn-outline-success">Увійти</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
   
 
-  {% if user.is_authenticated %}
-    <p>Вітаємо, {{ user.username }}!</p>
-    <a href="{% url 'cabinet' %}" class="btn btn-sm btn-outline-primary me-2">Мій кабінет</a>
-    {% if request.user.is_authenticated and request.user.is_staff %}
-        <a href="{% url 'admin_dashboard' %}">Admin Panel</a>
-    {% endif %}
-
-    <form method="post" action="{% url 'logout' %}" style="display: inline;">
-        {% csrf_token %}
-        <button type="submit" style="background:none;border:none;color:blue;cursor:pointer;">
-            Вийти
-        </button>
-    </form>
-  {% else %}
-      <a href="{% url 'login' %}" class="btn btn-sm btn-outline-success">Увійти</a>
-  {% endif %}
-  </div>
-</nav>
 
 <div class="container">
     {% block content %}
     {% endblock %}
 </div>
+
 <!-- Swiper scripts -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

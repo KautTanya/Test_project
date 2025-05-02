@@ -381,32 +381,10 @@ def admin_edit_module(request, module_id):
     })
 
 
-@staff_member_required
-# def admin_edit_lesson(request, lesson_id):
-#     lesson = get_object_or_404(Lesson, id=lesson_id)
+def contact_view(request):
+    return render(request, 'courses/contact.html')
 
-#     ContentFormSet = inlineformset_factory(
-#         Lesson, ContentBlock, form=ContentBlockForm, extra=0, can_delete=True
-#     )
 
-#     if request.method == 'POST':
-#         lesson_form = LessonForm(request.POST, instance=lesson)
-#         block_formset = ContentFormSet(request.POST, instance=lesson, prefix='form')
-
-#         if lesson_form.is_valid() and block_formset.is_valid():
-#             lesson = lesson_form.save()
-#             block_formset.save()
-#             return redirect('admin_edit_module', module_id=lesson.module.id)
-#     else:
-#         lesson_form = LessonForm(instance=lesson)
-#         block_formset = ContentFormSet(instance=lesson, prefix='form')
-
-#     return render(request, 'admin_panel/edit_lesson.html', {
-#         'lesson': lesson,
-#         'lesson_form': lesson_form,
-#         'block_formset': block_formset,
-#         'module': lesson.module,
-#     })
 @staff_member_required
 def admin_edit_lesson(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id)

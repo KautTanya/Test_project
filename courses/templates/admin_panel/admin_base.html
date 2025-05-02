@@ -12,6 +12,8 @@
         <nav class="flex flex-col space-y-2">
             <a href="{% url 'admin_dashboard' %}" class="text-gray-700 hover:text-blue-600 {% if request.path == '/admin/dashboard/' %}font-bold{% endif %}">📊 Dashboard</a>
             <a href="{% url 'admin_courses' %}" class="text-gray-700 hover:text-blue-600 {% if request.path == '/admin/courses/' %}font-bold{% endif %}">📚 Courses</a>
+            <hr class="my-4">
+            <a href="{% url 'index' %}" class="text-sm text-gray-500 hover:text-blue-600">← Назад на сайт</a>
         </nav>
     </aside>
 
